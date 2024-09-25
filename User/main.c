@@ -23,7 +23,7 @@
 #include "rtc.h"
 #include "tools.h"
 
-typedef enum _cmd_e {
+typedef enum _cmd_e {// @NOTE 
     CMD_PID_SEMAPHORE = 1,
     CMD_SWITCH_IRON_CHANGE,
     CMD_SWITCH_GUN_CHANGE,
@@ -177,7 +177,7 @@ void set_store_param(int index, uint16_t data) {
     BKP_WriteBackupRegister(BKP_DR1 + (index - 1) * 4, data);
 }
 
-void task_check(void *pvParameters) {
+void task_check(void *pvParameters) {// @NOTE 
     uint16_t timer_count = 0;
     uint8_t led_pwm_flag = 0;
     uint16_t led_pwm_count = 0;
@@ -503,14 +503,14 @@ void pid_timer_cb_irq() {
     portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
 }
 
-void task_pid(void *pvParameters) {
+void task_pid(void *pvParameters) {// @NOTE 
     bool pid_timer_is_start = false;
     while (1) {
         uint8_t message;
         if (xQueueReceive(l_task_pid_queue, &message, portMAX_DELAY) == pdFALSE) {
             continue;
         }
-        if (message != CMD_PID_SEMAPHORE)
+        if (message != CMD_PID_SEMAPHORE)// @NOTE 
             printf("task_pid CmdType:%d\n", (CmdType) (message));
         //不能有延时函数，PID计算会队列超出
 
@@ -612,11 +612,11 @@ static void gun_ch_cb(uint8_t ch) {
     else
         l_gun_dest_temp = GUN_CH3_TEMP;
     uint8_t message = CMD_GUN_DEST_TEMP_CHANGE;
-    xQueueSend(l_task_pid_queue, (void *) &message, pdMS_TO_TICKS(100));
+    xQueueSend(l_task_pid_queue, (void *) &message, pdMS_TO_TICKS(100));// @NOTE 
     xQueueSend(l_task_ui_queue, (void *) &message, 0);
 }
 
-void task_ui(void *pvParameters) {
+void task_ui(void *pvParameters) {// @NOTE 
     Rtc_Calendar calendar;
     lv_init();
     lv_port_disp_init();
@@ -806,7 +806,7 @@ int main(void) {
                                            l_task_pid_stack,
                                            &l_task_pid_task_buffer);
 
-    l_task_ui_handler = xTaskCreateStatic((TaskFunction_t) task_ui,
+    l_task_ui_handler = xTaskCreateStatic((TaskFunction_t) task_ui,// @NOTE 
                                           (const char *) "task_ui",
                                           (uint32_t) TASK_UI_STK_SIZE,
                                           (void *) NULL,
@@ -814,7 +814,7 @@ int main(void) {
                                           l_task_ui_stack,
                                           &l_task_ui_task_buffer);
 
-    l_task_pid_queue = xQueueCreateStatic(l_task_pid_queue_size, l_task_pid_queue_item_size, l_task_pid_queue_buff,
+    l_task_pid_queue = xQueueCreateStatic(l_task_pid_queue_size, l_task_pid_queue_item_size, l_task_pid_queue_buff,// @NOTE 
                                           &l_task_pid_queue_static);
     l_task_ui_queue = xQueueCreateStatic(l_task_ui_queue_size, l_task_ui_queue_item_size, l_task_ui_queue_buff,
                                          &l_task_ui_queue_static);
